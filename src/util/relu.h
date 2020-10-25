@@ -1,4 +1,4 @@
-#include <math.h>
+#include <stdlib.h>
 
 typedef struct Relu {
   float* inputRef = NULL;
