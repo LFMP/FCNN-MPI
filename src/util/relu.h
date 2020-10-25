@@ -7,7 +7,7 @@ typedef struct Relu {
   int width = 0;
 } relu;
 
-void create_relu(relu* s, int width) {
+void init_relu(relu* s, int width) {
   s->width = width;
   s->output = (float*)malloc(width * sizeof(float));
   s->gradient = (float*)malloc(width * sizeof(float));

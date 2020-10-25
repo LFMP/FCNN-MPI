@@ -8,7 +8,7 @@ typedef struct Sigmoid {
   int width = 0;
 } sigmoid;
 
-void create_sigmoid(sigmoid* s, int width) {
+void init_sigmoid(sigmoid* s, int width) {
   s->width = width;
   s->output = (float*)malloc(width * sizeof(float));
   s->gradient = (float*)malloc(width * sizeof(float));
