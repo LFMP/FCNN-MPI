@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Personal settings
+.vscode/
+vgcore.*
+*.stats
+*.times
