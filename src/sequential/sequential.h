@@ -1,9 +1,25 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "../util/layer.h"
 #include "../util/mse-loss.h"
 #include "../util/relu.h"
 #include "../util/sigmoid.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "../util/stb_image.h"
+
+void load_images(char* path, int width, int height, int count, float** data) {
+  for (int i = 0; i < count; i++) {
+    float* image = stbi_loadf(strcat(path, (char)i), width, height, 1, 1);
+    stbi_ldr_to_hdr_scale(1.0f);
+    data[i] = (float*)malloc(width * height * sizeof(float));
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        data[i][y * width + x] = image[y * width + x];
+      }
+    }
+  }
+}
 
 int find_max(float* vect_in, int len) {
   int max = 0;
