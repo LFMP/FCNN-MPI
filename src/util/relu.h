@@ -1,16 +1,16 @@
 #include <stdlib.h>
 
 typedef struct Relu {
-  float* inputRef = NULL;
-  float* output = NULL;
-  float* gradient = NULL;
-  int width = 0;
+  float* inputRef;
+  float* output;
+  float* gradient;
+  int width;
 } relu;
 
-void init_relu(relu* s, int width) {
-  s->width = width;
-  s->output = (float*)malloc(width * sizeof(float));
-  s->gradient = (float*)malloc(width * sizeof(float));
+void init_relu(relu* r, int width) {
+  r->width = width;
+  r->output = (float*)malloc(width * sizeof(float));
+  r->gradient = (float*)malloc(width * sizeof(float));
 }
 
 float calc_relu(float in) {

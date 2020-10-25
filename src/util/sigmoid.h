@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 typedef struct Sigmoid {
-  float* inputRef = NULL;
-  float* output = NULL;
-  float* gradient = NULL;
-  int width = 0;
+  float* inputRef;
+  float* output;
+  float* gradient;
+  int width;
 } sigmoid;
 
 void init_sigmoid(sigmoid* s, int width) {

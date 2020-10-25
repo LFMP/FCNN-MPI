@@ -1,16 +1,16 @@
 #include <stdlib.h>
 
 typedef struct MSEloss {
-  float* output = NULL;
-  float* gradient = NULL;
-  float err_sum = 0;
-  int width = 0;
+  float* output;
+  float* gradient;
+  float err_sum;
+  int width;
 } mseloss;
 
-void init_mse(mseloss* s, int width) {
-  s->width = width;
-  s->output = (float*)malloc(width * sizeof(float));
-  s->gradient = (float*)malloc(width * sizeof(float));
+void init_mse(mseloss* mse, int width) {
+  mse->width = width;
+  mse->output = (float*)malloc(width * sizeof(float));
+  mse->gradient = (float*)malloc(width * sizeof(float));
 }
 
 float mse_square_err(float out, float expected) {
