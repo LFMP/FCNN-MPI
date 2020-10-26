@@ -64,9 +64,9 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   float** train_labels = (float**)malloc(train_size * sizeof(float*));
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
-  load_images("../../Datasets/dataset1/train/", 256, 256, train_size, train_images);
+  load_images("../../Datasets/dataset1/train/", width, hight, train_size, train_images);
   load_labels("../../Datasets/dataset1/train/", train_size, qtd_class, train_labels);
-  load_images("../../Datasets/dataset1/test/", 256, 256, train_size, test_images);
+  load_images("../../Datasets/dataset1/test/", width, hight, train_size, test_images);
   load_labels("../../Datasets/dataset1/test/", test_size, qtd_class, test_labels);
   // create and init layers, relu, sigmoid and loss function
   layer* l1 = (layer*)malloc(sizeof(layer));
