@@ -10,8 +10,8 @@ typedef struct Sigmoid {
 
 void init_sigmoid(sigmoid* s, int width) {
   s->width = width;
-  s->output = (float*)malloc(width * sizeof(float));
-  s->gradient = (float*)malloc(width * sizeof(float));
+  s->output = (float*)malloc(width * sizeof(float*));
+  s->gradient = (float*)malloc(width * sizeof(float*));
 }
 
 float calc_sigmoid(float in) {

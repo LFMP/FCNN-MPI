@@ -18,16 +18,16 @@ void layer_create(layer* l, int input_len, int output_len) {
   l->input_width = input_len;
   l->output_width = output_len;
   l->learningRate = 0.01;
-  l->output = (float*)malloc(input_len * sizeof(float));
-  l->gradient = (float*)malloc(input_len * sizeof(float));
+  l->output = (float*)malloc(input_len * sizeof(float*));
+  l->gradient = (float*)malloc(input_len * sizeof(float*));
 }
 
 void layer_initialize(layer* l, float mult, float offset) {
   int count = l->input_width * l->output_width;
-  l->weights = (float*)malloc(count * sizeof(float));
-  l->weights_errs = (float*)malloc(count * sizeof(float));
-  l->biases = (float*)malloc(l->output_width * sizeof(float));
-  l->biases_err = (float*)malloc(l->output_width * sizeof(float));
+  l->weights = (float*)malloc(count * sizeof(float*));
+  l->weights_errs = (float*)malloc(count * sizeof(float*));
+  l->biases = (float*)malloc(count * sizeof(float*));
+  l->biases_err = (float*)malloc(count * sizeof(float*));
 
   for (int i = 0; i < count; i++) {
     l->weights[i] = ((float)rand() / RAND_MAX) * mult + offset;

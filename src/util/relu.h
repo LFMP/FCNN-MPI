@@ -9,8 +9,8 @@ typedef struct Relu {
 
 void init_relu(relu* r, int width) {
   r->width = width;
-  r->output = (float*)malloc(width * sizeof(float));
-  r->gradient = (float*)malloc(width * sizeof(float));
+  r->output = (float*)malloc(width * sizeof(float*));
+  r->gradient = (float*)malloc(width * sizeof(float*));
 }
 
 float calc_relu(float in) {
