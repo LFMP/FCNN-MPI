@@ -10,17 +10,18 @@
 #include "../util/stb_image.h"
 
 void load_images(char* path, int width, int height, int count, float** data) {
+  printf("Reading images\n");
   int channels = 1;
   for (int i = 0; i < count; i++) {
-    stbi_ldr_to_hdr_scale(1.0f);
     char str[10];
+    char aux[PATH_MAX];
+    char filename[PATH_MAX];
     sprintf(str, "%d", i);
-    char aux[100];
     strcpy(aux, path);
     strcat(aux, str);
-    char filename[150];
     strcpy(filename, aux);
     strcat(filename, ".bmp");
+    stbi_ldr_to_hdr_scale(1.0f);
     float* image = stbi_loadf(filename, &width, &height, &channels, STBI_grey);
     data[i] = (float*)malloc(width * height * sizeof(float));
     for (int x = 0; x < width; x++) {
@@ -33,12 +34,18 @@ void load_images(char* path, int width, int height, int count, float** data) {
 }
 
 void load_labels(char* path, int count, int qtd_class, float** data) {
-  FILE* fp = fopen(strcat(path, "labels.txt"), "r");
+  printf("Reading labels\n");
+  char file_path[PATH_MAX];
+  char filename[12];
+  strcpy(filename, "labels.txt");
+  strcpy(file_path, path);
+  strcat(file_path, filename);
+  FILE* fp = fopen(file_path, "r");
   char buffer[5];
   fgets(buffer, sizeof(buffer), fp);
   int label = 0, element = 0;
   label = atoi(buffer);
-  while (label != NULL && element < count) {
+  while (label != -1 && element < count) {
     data[element] = (float*)malloc(qtd_class * sizeof(float));
     for (int i = 0; i < qtd_class; i++) {
       data[element][i] = 0;
@@ -49,9 +56,8 @@ void load_labels(char* path, int count, int qtd_class, float** data) {
     if (aux != NULL) {
       label = atoi(aux);
     } else {
-      label = NULL;
+      label = -1;
     }
-
     element++;
   }
   fclose(fp);
@@ -69,17 +75,19 @@ int find_max(float* vect_in, int len) {
 
 void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   // load images
-  char* train_folder = {"/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/train/"};
-  char* test_folder = {"/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/test/"};
+  char train_folder[PATH_MAX], test_folder[PATH_MAX];
+  strcpy(train_folder, "/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/train/");
+  strcpy(test_folder, "/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/test/");
   float** train_images = (float**)malloc(train_size * sizeof(float*));
   float** train_labels = (float**)malloc(train_size * sizeof(float*));
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
   load_images(train_folder, width, hight, train_size, train_images);
   load_labels(train_folder, train_size, qtd_class, train_labels);
-  load_images(test_folder, width, hight, train_size, test_images);
+  load_images(test_folder, width, hight, test_size, test_images);
   load_labels(test_folder, test_size, qtd_class, test_labels);
   // create and init layers, relu, sigmoid and loss function
+  printf("Initializing network\n");
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
   layer* l3 = (layer*)malloc(sizeof(layer));
@@ -113,6 +121,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   // train and test process
   for (int i = 0; i < 20; i++) {
     mse_sum = 0;
+    printf("Training...\n");
     for (int j = 0; j < train_size; j++) {
       // chose sample
       sample = rand() % train_size;
@@ -148,10 +157,12 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
       layer_update_w(l5);
       mse_sum += mse->err_sum;
     }
-    printf("Epoch: %d\n", i);
-    printf("Train error: %lf", mse_sum / train_size);
+    // printf("Epoch: %d\n", i);
+    // printf("Train error: %lf", mse_sum / train_size);
     mse_sum = 0;
+    printf("Testing...\n");
     for (int j = 0; j < test_size; j++) {
+      sample = i;
       layer_forward(l1, test_images[sample]);
       relu_forward(r1, l1->output);
       layer_forward(l2, l1->output);
@@ -166,6 +177,6 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
         mse_sum += 1.0;
       }
     }
-    printf("Test error: %.2lf", mse_sum * 100 / test_size);
+    // printf("Test error: %.2lf", mse_sum * 100 / test_size);
   }
 }
