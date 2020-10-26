@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../util/layer.h"
 #include "../util/mse-loss.h"
@@ -12,8 +13,14 @@ void load_images(char* path, int width, int height, int count, float** data) {
   int channels = 1;
   for (int i = 0; i < count; i++) {
     stbi_ldr_to_hdr_scale(1.0f);
-    char* aux = strcat(path, (char)i);
-    char* filename = strcat(aux, ".png");
+    char str[10];
+    sprintf(str, "%d", i);
+    char aux[100];
+    strcpy(aux, path);
+    strcat(aux, str);
+    char filename[150];
+    strcpy(filename, aux);
+    strcat(filename, ".bmp");
     float* image = stbi_loadf(filename, &width, &height, &channels, STBI_grey);
     data[i] = (float*)malloc(width * height * sizeof(float));
     for (int x = 0; x < width; x++) {
@@ -26,16 +33,19 @@ void load_images(char* path, int width, int height, int count, float** data) {
 }
 
 void load_labels(char* path, int count, int qtd_class, float** data) {
-  FILE* fp = fopen(strcat(path, "labels.txt"), 'r');
+  FILE* fp = fopen(strcat(path, "labels.txt"), "r");
   char buffer[5];
-  int label = atoi(fgets(buffer, sizeof(buffer), fp)), element = 0;
+  fgets(buffer, sizeof(buffer), fp);
+  int label = 0, element = 0;
+  label = atoi(buffer);
   while (label != NULL && element < count) {
     data[element] = (float*)malloc(qtd_class * sizeof(float));
     for (int i = 0; i < qtd_class; i++) {
       data[element][i] = 0;
     }
     data[element][label] = 1.0;
-    char aux[5] = fgets(buffer, sizeof(buffer), fp);
+    char aux[5];
+    fgets(aux, sizeof(aux), fp);
     if (aux != NULL) {
       label = atoi(aux);
     } else {
@@ -43,7 +53,6 @@ void load_labels(char* path, int count, int qtd_class, float** data) {
     }
 
     element++;
-    free(aux);
   }
   fclose(fp);
 }
@@ -60,14 +69,16 @@ int find_max(float* vect_in, int len) {
 
 void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   // load images
+  char* train_folder = {"/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/train/"};
+  char* test_folder = {"/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/test/"};
   float** train_images = (float**)malloc(train_size * sizeof(float*));
   float** train_labels = (float**)malloc(train_size * sizeof(float*));
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
-  load_images("../../Datasets/dataset1/train/", width, hight, train_size, train_images);
-  load_labels("../../Datasets/dataset1/train/", train_size, qtd_class, train_labels);
-  load_images("../../Datasets/dataset1/test/", width, hight, train_size, test_images);
-  load_labels("../../Datasets/dataset1/test/", test_size, qtd_class, test_labels);
+  load_images(train_folder, width, hight, train_size, train_images);
+  load_labels(train_folder, train_size, qtd_class, train_labels);
+  load_images(test_folder, width, hight, train_size, test_images);
+  load_labels(test_folder, test_size, qtd_class, test_labels);
   // create and init layers, relu, sigmoid and loss function
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
