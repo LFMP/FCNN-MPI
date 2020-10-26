@@ -8,16 +8,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../util/stb_image.h"
 
-void load_images(char* path, int width, int height, int count, float** data) {
+void load_image(char* path, int width, int height, int count, float** data) {
+  int channels = 1;
   for (int i = 0; i < count; i++) {
-    float* image = stbi_loadf(strcat(path, (char)i), width, height, 1, 1);
     stbi_ldr_to_hdr_scale(1.0f);
+    float* image = stbi_loadf(strcat(path, (char)i), &width, &height, &channels, STBI_grey);
     data[i] = (float*)malloc(width * height * sizeof(float));
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         data[i][y * width + x] = image[y * width + x];
       }
     }
+    stbi_image_free(image);
   }
 }
 
