@@ -58,12 +58,16 @@ int find_max(float* vect_in, int len) {
   return max;
 }
 
-void train(int width, int hight, int train_size, int test_size) {
+void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   // load images
   float** train_images = (float**)malloc(train_size * sizeof(float*));
   float** train_labels = (float**)malloc(train_size * sizeof(float*));
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
+  load_images("../../Datasets/dataset1/train/", 256, 256, train_size, train_images);
+  load_labels("../../Datasets/dataset1/train/", train_size, qtd_class, train_labels);
+  load_images("../../Datasets/dataset1/test/", 256, 256, train_size, test_images);
+  load_labels("../../Datasets/dataset1/test/", test_size, qtd_class, test_labels);
   // create and init layers, relu, sigmoid and loss function
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
@@ -79,8 +83,8 @@ void train(int width, int hight, int train_size, int test_size) {
   layer_create(l1, width * hight, 1024);
   layer_create(l2, 512, 512);
   layer_create(l3, 256, 256);
-  layer_create(l4, 10, 10);
-  layer_create(l5, 10, 10);
+  layer_create(l4, qtd_class, qtd_class);
+  layer_create(l5, qtd_class, qtd_class);
   layer_initialize(l1, 0.01, 0);
   layer_initialize(l2, 0.01, 0);
   layer_initialize(l3, 0.01, 0);
@@ -90,8 +94,8 @@ void train(int width, int hight, int train_size, int test_size) {
   init_relu(r2, 256);
   init_relu(r3, 256);
   init_relu(r4, 256);
-  init_sigmoid(s1, 10);
-  init_mse(mse, 10);
+  init_sigmoid(s1, qtd_class);
+  init_mse(mse, qtd_class);
   // aux vars
   int sample = 0;
   double mse_sum = 0;
@@ -147,7 +151,7 @@ void train(int width, int hight, int train_size, int test_size) {
       relu_forward(r4, l4->output);
       layer_forward(l5, l4->output);
       sigmoid_forward(s1, l5->output);
-      if (find_max(test_labels[sample], 10) != find_max(s1->output, 10)) {
+      if (find_max(test_labels[sample], qtd_class) != find_max(s1->output, qtd_class)) {
         mse_sum += 1.0;
       }
     }
