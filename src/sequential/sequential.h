@@ -8,11 +8,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../util/stb_image.h"
 
-void load_image(char* path, int width, int height, int count, float** data) {
+void load_images(char* path, int width, int height, int count, float** data) {
   int channels = 1;
   for (int i = 0; i < count; i++) {
     stbi_ldr_to_hdr_scale(1.0f);
-    float* image = stbi_loadf(strcat(path, (char)i), &width, &height, &channels, STBI_grey);
+    char* aux = strcat(path, (char)i);
+    char* filename = strcat(aux, ".png");
+    float* image = stbi_loadf(filename, &width, &height, &channels, STBI_grey);
     data[i] = (float*)malloc(width * height * sizeof(float));
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
@@ -21,6 +23,29 @@ void load_image(char* path, int width, int height, int count, float** data) {
     }
     stbi_image_free(image);
   }
+}
+
+void load_labels(char* path, int count, int qtd_class, float** data) {
+  FILE* fp = fopen(strcat(path, "labels.txt"), 'r');
+  char buffer[5];
+  int label = atoi(fgets(buffer, sizeof(buffer), fp)), element = 0;
+  while (label != NULL && element < count) {
+    data[element] = (float*)malloc(qtd_class * sizeof(float));
+    for (int i = 0; i < qtd_class; i++) {
+      data[element][i] = 0;
+    }
+    data[element][label] = 1.0;
+    char aux[5] = fgets(buffer, sizeof(buffer), fp);
+    if (aux != NULL) {
+      label = atoi(aux);
+    } else {
+      label = NULL;
+    }
+
+    element++;
+    free(aux);
+  }
+  fclose(fp);
 }
 
 int find_max(float* vect_in, int len) {
