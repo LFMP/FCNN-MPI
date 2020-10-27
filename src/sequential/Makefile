@@ -25,6 +25,8 @@ clean:
 	rm -f vgcore.*
 	rm -f *.stats
 
+run: $(OUT)
+	./$(OUT)
 # compile program with debugging information
 debug: $(OUT)
 	valgrind $(OUT)

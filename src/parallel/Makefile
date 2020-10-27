@@ -5,7 +5,7 @@ SOURCE	= parallel.c
 HEADER	= ../util/mse-loss.h ../util/relu.h ../util/sigmoid.h ../util/network.h parallel.h
 OUT	= fcnn-mpi.out
 CC	 = mpicc
-FLAGS	 = -fopenmp
+FLAGS	 = -c
 LFLAGS	 = -lm
 PERF = sudo systemd-inhibit perf stat
 RUNF =  -r 11 -a -B -e cache-misses,cache-references,cycles,instructions,mem-loads,mem-stores,context-switches,power/energy-cores/,power/energy-ram/,power/energy-pkg/
@@ -24,6 +24,13 @@ clean:
 	rm -f $(OBJS) $(OUT)
 	rm -f vgcore.*
 	rm -f *.stats
+
+# run the program
+run: $(OUT)
+	mpirun -np 2 ./$(OUT)
+	mpirun -np 4 ./$(OUT)
+	mpirun -np 6 ./$(OUT)
+	mpirun -np 8 ./$(OUT)
 
 # compile program with debugging information
 debug: $(OUT)
