@@ -45,7 +45,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     MPI_Bcast(train_images[i], width * hight, MPI_FLOAT, 0, MPI_COMM_WORLD);
     MPI_Bcast(train_labels[i], qtd_class, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
-
+  srand(pid);
   printf("Initializing network\n");
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
@@ -81,7 +81,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   for (int i = 0; i < 5; i++) {
     mse_sum = 0;
     printf("Training...\n");
-    for (int j = 0; j < train_size; j++) {
+    for (int j = 0; j < train_size / pcount; j++) {
       // chose sample
       sample = rand() % train_size;
       // foward information
