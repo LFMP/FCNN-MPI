@@ -4,7 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../util/stb_image.h"
 
-void load_images(char* path, int width, int height, int count, float** data) {
+void load_images(char* path, int width, int hight, int count, float** data) {
   printf("Reading images\n");
   int channels = 1;
   for (int i = 0; i < count; i++) {
@@ -17,10 +17,10 @@ void load_images(char* path, int width, int height, int count, float** data) {
     strcpy(filename, aux);
     strcat(filename, ".bmp");
     stbi_ldr_to_hdr_scale(1.0f);
-    float* image = stbi_loadf(filename, &width, &height, &channels, STBI_grey);
-    data[i] = (float*)malloc(width * height * sizeof(float));
+    float* image = stbi_loadf(filename, &width, &hight, &channels, STBI_grey);
+    data[i] = (float*)malloc(width * hight * sizeof(float*));
     for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
+      for (int y = 0; y < hight; y++) {
         data[i][y * width + x] = image[y * width + x];
       }
     }
