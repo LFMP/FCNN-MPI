@@ -78,7 +78,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   int sample = 0;
   double mse_sum = 0;
   // train and test process
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 5; i++) {
     mse_sum = 0;
     printf("Training...\n");
     for (int j = 0; j < train_size; j++) {
