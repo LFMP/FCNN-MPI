@@ -10,11 +10,8 @@
 #include "../util/relu.h"
 #include "../util/sigmoid.h"
 
-void train(int width, int hight, int train_size, int test_size, int qtd_class, int epochs) {
+void train(int width, int hight, int train_size, int test_size, int qtd_class, int epochs, char* train_folder, char* test_folder) {
   // load images
-  char train_folder[PATH_MAX], test_folder[PATH_MAX];
-  strcpy(train_folder, "/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/train/");
-  strcpy(test_folder, "/home/luiz/GitProjects/FCNN-MPI/Datasets/dataset1/test/");
   float** train_images = (float**)malloc(train_size * sizeof(float*));
   float** train_labels = (float**)malloc(train_size * sizeof(float*));
   float** test_images = (float**)malloc(test_size * sizeof(float*));
