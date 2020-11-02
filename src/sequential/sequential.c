@@ -1,6 +1,6 @@
 #include "sequential.h"
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
   struct timeval start, end;
   char train_path[PATH_MAX];
   char test_path[PATH_MAX];
