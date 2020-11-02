@@ -27,7 +27,7 @@ clean:
 
 # run the program
 run: $(OUT)
-	mpirun -np 2 ./$(OUT)
+	mpirun -np 4 ./$(OUT)
 	# mpirun -np 4 ./$(OUT)
 	# mpirun -np 6 ./$(OUT)
 	# mpirun -np 8 ./$(OUT)

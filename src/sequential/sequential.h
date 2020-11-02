@@ -37,19 +37,19 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
   sigmoid* s1 = (sigmoid*)malloc(sizeof(sigmoid));
   mseloss* mse = (mseloss*)malloc(sizeof(mseloss));
   layer_create(l1, width * hight, 1024);
-  layer_create(l2, 512, 512);
-  layer_create(l3, 256, 256);
+  layer_create(l2, 1024, 512);
+  layer_create(l3, 512, 256);
   layer_create(l4, qtd_class, qtd_class);
   layer_create(l5, qtd_class, qtd_class);
   layer_initialize(l1, 0.01, 0);
   layer_initialize(l2, 0.01, 0);
   layer_initialize(l3, 0.01, 0);
   layer_initialize(l4, 0.01, 0);
-  layer_initialize(l5, 0.01, 0);
+  layer_initialize(l5, 2, -1);
   init_relu(r1, 1024);
-  init_relu(r2, 256);
+  init_relu(r2, 512);
   init_relu(r3, 256);
-  init_relu(r4, 256);
+  init_relu(r4, qtd_class);
   init_sigmoid(s1, qtd_class);
   init_mse(mse, qtd_class);
   // aux vars
@@ -94,8 +94,8 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class) {
       layer_update_w(l5);
       mse_sum += mse->err_sum;
     }
-    // printf("Epoch: %d\n", i);
-    // printf("Train error: %lf", mse_sum / train_size);
+    printf("Epoch: %d\n", i);
+    printf("Train error: %lf", mse_sum / train_size);
     mse_sum = 0;
     printf("Testing...\n");
     for (int j = 0; j < test_size; j++) {

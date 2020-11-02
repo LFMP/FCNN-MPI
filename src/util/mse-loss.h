@@ -9,6 +9,7 @@ typedef struct MSEloss {
 
 void init_mse(mseloss* mse, int width) {
   mse->width = width;
+  mse->err_sum = 0;
   mse->output = (float*)malloc(width * sizeof(float));
   mse->gradient = (float*)malloc(width * sizeof(float));
 }

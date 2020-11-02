@@ -25,6 +25,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
   if (pid == 0) {
+    printf("running for %d process\n", pcount);
     load_images(train_folder, width, hight, train_size, train_images);
     load_labels(train_folder, train_size, qtd_class, train_labels);
     load_images(test_folder, width, hight, test_size, test_images);
@@ -40,12 +41,13 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     }
   }
   MPI_Barrier(MPI_COMM_WORLD);
-  // create and init layers, relu, sigmoid and loss function
+  printf("Broadcasting data...\n");
   for (int i = 0; i < train_size; i++) {
     MPI_Bcast(train_images[i], width * hight, MPI_FLOAT, 0, MPI_COMM_WORLD);
     MPI_Bcast(train_labels[i], qtd_class, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
-  srand(pid);
+  //srand(pid);
+  // create and init layers, relu, sigmoid and loss function
   printf("Initializing network\n");
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
@@ -59,19 +61,13 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   sigmoid* s1 = (sigmoid*)malloc(sizeof(sigmoid));
   mseloss* mse = (mseloss*)malloc(sizeof(mseloss));
   layer_create(l1, width * hight, 1024);
-  layer_create(l2, 512, 512);
-  layer_create(l3, 256, 256);
-  layer_create(l4, qtd_class, qtd_class);
-  layer_create(l5, qtd_class, qtd_class);
+  layer_create(l2, 1024, 512);
+  layer_create(l3, 512, qtd_class);
   layer_initialize(l1, 0.01, 0);
   layer_initialize(l2, 0.01, 0);
-  layer_initialize(l3, 0.01, 0);
-  layer_initialize(l4, 0.01, 0);
-  layer_initialize(l5, 0.01, 0);
+  layer_initialize(l3, 2, -1);
   init_relu(r1, 1024);
-  init_relu(r2, 256);
-  init_relu(r3, 256);
-  init_relu(r4, 256);
+  init_relu(r2, 512);
   init_sigmoid(s1, qtd_class);
   init_mse(mse, qtd_class);
   // aux vars
@@ -87,38 +83,32 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
       // foward information
       layer_forward(l1, train_images[sample]);
       relu_forward(r1, l1->output);
+
       layer_forward(l2, l1->output);
       relu_forward(r2, l2->output);
+
       layer_forward(l3, l2->output);
-      relu_forward(r3, l3->output);
-      layer_forward(l4, l3->output);
-      relu_forward(r4, l4->output);
-      layer_forward(l5, l4->output);
-      sigmoid_forward(s1, l5->output);
+      sigmoid_forward(s1, l3->output);
       // calculate mse
       mse_loss_calc(mse, s1->output, train_labels[sample]);
       // backward information
       sigmoid_backward(s1, mse->gradient);
-      layer_backward(l5, s1->gradient);
-      relu_backward(r4, l5->gradient);
-      layer_backward(l4, r4->gradient);
-      relu_backward(r3, l4->gradient);
-      layer_backward(l3, r3->gradient);
+      layer_backward(l3, s1->gradient);
+
       relu_backward(r2, l3->gradient);
       layer_backward(l2, r2->gradient);
+
       relu_backward(r1, l2->gradient);
       layer_backward(l1, r1->gradient);
       // update weigths
       layer_update_w(l1);
       layer_update_w(l2);
       layer_update_w(l3);
-      layer_update_w(l4);
-      layer_update_w(l5);
       mse_sum += mse->err_sum;
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    // printf("Epoch: %d\n", i);
-    // printf("Train error: %lf", mse_sum / train_size);
+    printf("Epoch: %d\n", i);
+    printf("Train error: %lf", mse_sum / train_size);
     if (pid == 0) {
       mse_sum = 0;
       printf("Testing...\n");
@@ -126,14 +116,12 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
         sample = i;
         layer_forward(l1, test_images[sample]);
         relu_forward(r1, l1->output);
+
         layer_forward(l2, l1->output);
         relu_forward(r2, l2->output);
+
         layer_forward(l3, l2->output);
-        relu_forward(r3, l3->output);
-        layer_forward(l4, l3->output);
-        relu_forward(r4, l4->output);
-        layer_forward(l5, l4->output);
-        sigmoid_forward(s1, l5->output);
+        sigmoid_forward(s1, l3->output);
         if (find_max(test_labels[sample], qtd_class) != find_max(s1->output, qtd_class)) {
           mse_sum += 1.0;
         }
@@ -164,12 +152,14 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     for (int k = 0; k < l1->output_width; k++) {
       l1->biases[k] = aux_biases_l1[k] / (float)pcount;
     }
+
     for (int k = 0; k < l2_size; k++) {
       l2->weights[k] = aux_weights_l2[k] / (float)pcount;
     }
     for (int k = 0; k < l2->output_width; k++) {
       l2->biases[k] = aux_biases_l2[k] / (float)pcount;
     }
+
     for (int k = 0; k < l3_size; k++) {
       l3->weights[k] = aux_weights_l3[k] / (float)pcount;
     }
