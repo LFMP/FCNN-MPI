@@ -5,7 +5,7 @@ int main(int argc, char *argv[]) {
   char train_path[PATH_MAX];
   char test_path[PATH_MAX];
   int opt = -1, height = 28, width = 28, train_size = 60000, test_size = 10000, epochs = 16, num_class = 10;
-  while ((opt = getopt(argc, argv, "w:n:m:e:f:c:h")) != -1) {
+  while ((opt = getopt(argc, argv, "w:n:m:e:f:c:d:h")) != -1) {
     switch (opt) {
       case 'w':
         width = strtoul(optarg, NULL, 0);
