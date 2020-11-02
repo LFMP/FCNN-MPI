@@ -25,7 +25,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   float** test_images = (float**)malloc(test_size * sizeof(float*));
   float** test_labels = (float**)malloc(test_size * sizeof(float*));
   if (pid == 0) {
-    printf("running for %d process\n", pcount);
+    //printf("running for %d process\n", pcount);
     load_images(train_folder, width, hight, train_size, train_images);
     load_labels(train_folder, train_size, qtd_class, train_labels);
     load_images(test_folder, width, hight, test_size, test_images);
