@@ -6,7 +6,7 @@ parallel="src/parallel/fcnn-mpi.out"
 sequential="src/sequential/fcnn.out"
 PERF="sudo perf stat"
 RUNF="-a -B -e cache-misses,cache-references,cycles,instructions,mem-loads,mem-stores,context-switches,power/energy-cores/,power/energy-ram/,power/energy-pkg/"
-DATASET = "$DIR/Datasets/dataset1/"
+DATASET="$DIR/Datasets/dataset1/"
 if [ -z "$N" ]; then
   echo "Eh necessario informar a quantidade de execucoes"
   exit 1
