@@ -11,7 +11,7 @@
 #include "../util/relu.h"
 #include "../util/sigmoid.h"
 
-void train(int width, int hight, int train_size, int test_size, int qtd_class, int argc, char* argv[]) {
+void train(int width, int hight, int train_size, int test_size, int qtd_class, int epochs, int argc, char* argv[]) {
   int pcount, pid;
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &pcount);
@@ -41,14 +41,14 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     }
   }
   MPI_Barrier(MPI_COMM_WORLD);
-  printf("Broadcasting data...\n");
+  //printf("Broadcasting data...\n");
   for (int i = 0; i < train_size; i++) {
     MPI_Bcast(train_images[i], width * hight, MPI_FLOAT, 0, MPI_COMM_WORLD);
     MPI_Bcast(train_labels[i], qtd_class, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
   //srand(pid);
   // create and init layers, relu, sigmoid and loss function
-  printf("Initializing network\n");
+  //printf("Initializing network\n");
   layer* l1 = (layer*)malloc(sizeof(layer));
   layer* l2 = (layer*)malloc(sizeof(layer));
   layer* l3 = (layer*)malloc(sizeof(layer));
@@ -74,9 +74,9 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   int sample = 0;
   double mse_sum = 0;
   // train and test process
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < epochs / pcount; i++) {
     mse_sum = 0;
-    printf("Training...\n");
+    //printf("Training...\n");
     for (int j = 0; j < train_size / pcount; j++) {
       // chose sample
       sample = rand() % train_size;
@@ -107,11 +107,11 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
       mse_sum += mse->err_sum;
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    printf("Epoch: %d\n", i);
-    printf("Train error: %lf", mse_sum / train_size);
+    //printf("Epoch: %d\n", i);
+    //printf("Train error: %lf", mse_sum / train_size);
     if (pid == 0) {
       mse_sum = 0;
-      printf("Testing...\n");
+      //printf("Testing...\n");
       for (int j = 0; j < test_size; j++) {
         sample = i;
         layer_forward(l1, test_images[sample]);

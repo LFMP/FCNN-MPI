@@ -5,7 +5,7 @@
 #include "../util/stb_image.h"
 
 void load_images(char* path, int width, int hight, int count, float** data) {
-  printf("Reading images\n");
+  //printf("Reading images\n");
   int channels = 1;
   for (int i = 0; i < count; i++) {
     char str[10];
@@ -29,7 +29,7 @@ void load_images(char* path, int width, int hight, int count, float** data) {
 }
 
 void load_labels(char* path, int count, int qtd_class, float** data) {
-  printf("Reading labels\n");
+  //printf("Reading labels\n");
   char file_path[PATH_MAX];
   char filename[12];
   strcpy(filename, "labels.txt");

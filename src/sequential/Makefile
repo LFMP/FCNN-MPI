@@ -26,7 +26,7 @@ clean:
 	rm -f *.stats
 
 run: $(OUT)
-	./$(OUT)
+	@(./$(OUT))
 # compile program with debugging information
 debug: $(OUT)
 	valgrind $(OUT)
