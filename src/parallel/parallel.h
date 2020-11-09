@@ -50,21 +50,22 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   layer* l2 = (layer*)malloc(sizeof(layer));
   layer* l3 = (layer*)malloc(sizeof(layer));
   layer* l4 = (layer*)malloc(sizeof(layer));
-  layer* l5 = (layer*)malloc(sizeof(layer));
   relu* r1 = (relu*)malloc(sizeof(relu));
   relu* r2 = (relu*)malloc(sizeof(relu));
   relu* r3 = (relu*)malloc(sizeof(relu));
-  relu* r4 = (relu*)malloc(sizeof(relu));
   sigmoid* s1 = (sigmoid*)malloc(sizeof(sigmoid));
   mseloss* mse = (mseloss*)malloc(sizeof(mseloss));
   layer_create(l1, width * hight, 1024);
   layer_create(l2, 1024, 512);
-  layer_create(l3, 512, qtd_class);
+  layer_create(l3, 512, 256);
+  layer_create(l4, 256, qtd_class);
   layer_initialize(l1, 0.01, 0);
   layer_initialize(l2, 0.01, 0);
-  layer_initialize(l3, 2, -1);
+  layer_initialize(l3, 0.01, 0);
+  layer_initialize(l4, 2, -1);
   init_relu(r1, 1024);
   init_relu(r2, 512);
+  init_relu(r3, 256);
   init_sigmoid(s1, qtd_class);
   init_mse(mse, qtd_class);
   // aux vars
@@ -85,12 +86,18 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
       relu_forward(r2, l2->output);
 
       layer_forward(l3, l2->output);
-      sigmoid_forward(s1, l3->output);
+      relu_forward(r3, l3->output);
+
+      layer_forward(l4, l3->output);
+      sigmoid_forward(s1, l4->output);
       // calculate mse
       mse_loss_calc(mse, s1->output, train_labels[sample]);
       // backward information
       sigmoid_backward(s1, mse->gradient);
-      layer_backward(l3, s1->gradient);
+      layer_backward(l4, s1->gradient);
+
+      relu_backward(r3, l4->gradient);
+      layer_backward(l3, r3->gradient);
 
       relu_backward(r2, l3->gradient);
       layer_backward(l2, r2->gradient);
@@ -101,6 +108,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
       layer_update_w(l1);
       layer_update_w(l2);
       layer_update_w(l3);
+      layer_update_w(l4);
       mse_sum += mse->err_sum;
     }
     MPI_Barrier(MPI_COMM_WORLD);
@@ -118,7 +126,10 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
         relu_forward(r2, l2->output);
 
         layer_forward(l3, l2->output);
-        sigmoid_forward(s1, l3->output);
+        relu_forward(r3, l3->output);
+
+        layer_forward(l4, l3->output);
+        sigmoid_forward(s1, l4->output);
         if (find_max(test_labels[sample], qtd_class) != find_max(s1->output, qtd_class)) {
           mse_sum += 1.0;
         }
@@ -129,12 +140,15 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     int l1_size = l1->input_width * l1->output_width;
     int l2_size = l2->input_width * l2->output_width;
     int l3_size = l3->input_width * l3->output_width;
+    int l4_size = l4->input_width * l4->output_width;
     float* aux_weights_l1 = (float*)malloc(l1_size * sizeof(float*));
     float* aux_weights_l2 = (float*)malloc(l2_size * sizeof(float*));
     float* aux_weights_l3 = (float*)malloc(l3_size * sizeof(float*));
+    float* aux_weights_l4 = (float*)malloc(l4_size * sizeof(float*));
     float* aux_biases_l1 = (float*)malloc(l1->output_width * sizeof(float*));
     float* aux_biases_l2 = (float*)malloc(l2->output_width * sizeof(float*));
     float* aux_biases_l3 = (float*)malloc(l3->output_width * sizeof(float*));
+    float* aux_biases_l4 = (float*)malloc(l3->output_width * sizeof(float*));
     // reduce to join results
     MPI_Allreduce(l1->weights, aux_weights_l1, l1_size, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(l1->biases, aux_biases_l1, l1->output_width, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
@@ -142,6 +156,8 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     MPI_Allreduce(l2->biases, aux_biases_l2, l2->output_width, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(l3->weights, aux_weights_l3, l3_size, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(l3->biases, aux_biases_l3, l3->output_width, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(l4->weights, aux_weights_l4, l4_size, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(l4->biases, aux_biases_l4, l4->output_width, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     // average
     for (int k = 0; k < l1_size; k++) {
       l1->weights[k] = aux_weights_l1[k] / (float)pcount;
@@ -163,12 +179,21 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
     for (int k = 0; k < l3->output_width; k++) {
       l3->biases[k] = aux_biases_l3[k] / (float)pcount;
     }
+
+    for (int k = 0; k < l4_size; k++) {
+      l4->weights[k] = aux_weights_l4[k] / (float)pcount;
+    }
+    for (int k = 0; k < l4->output_width; k++) {
+      l4->biases[k] = aux_biases_l4[k] / (float)pcount;
+    }
     free(aux_weights_l1);
     free(aux_weights_l2);
     free(aux_weights_l3);
+    free(aux_weights_l4);
     free(aux_biases_l1);
     free(aux_biases_l2);
     free(aux_biases_l3);
+    free(aux_biases_l4);
     // printf("Test error: %.2lf", mse_sum * 100 / test_size);
   }
   MPI_Finalize();
