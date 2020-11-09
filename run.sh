@@ -28,7 +28,7 @@ SUMS4=0
 
 # executa paralelo
 #echo "executando paralelo"
-for k in 2 4; do
+for k in 2 3 4; do
   echo "executando case 1"
   for ((i = 0; i < $N; ++i)); do
     mpirun -N $k $parallel -n 1000 -m 300 -d $DATASET >>parallel.$k.1000.300.txt
