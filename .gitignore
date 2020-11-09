@@ -57,3 +57,5 @@ vgcore.*
 *.stats
 *.times
 Datasets/
+*.mpiP
+*.txt

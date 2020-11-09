@@ -36,7 +36,7 @@ void train(int width, int hight, int train_size, int test_size, int qtd_class, i
   layer_create(l1, width * hight, 1024);
   layer_create(l2, 1024, 512);
   layer_create(l3, 512, 256);
-  layer_create(l4, qtd_class, qtd_class);
+  layer_create(l4, 256, qtd_class);
   layer_create(l5, qtd_class, qtd_class);
   layer_initialize(l1, 0.01, 0);
   layer_initialize(l2, 0.01, 0);

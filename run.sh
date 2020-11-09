@@ -28,7 +28,7 @@ $PERF -r $N $RUNF ./$sequential -n 60000 -m 10000 -d $DATASET >>sequential.60000
 
 # executa paralelo
 echo "executando paralelo"
-for k in 2 4 6 8; do
+for k in 2 4; do
 
   for ((i = 0; i < $N; ++i)); do
     mpirun -N $k $parallel -n 1000 -m 300 -d $DATASET >>parallel.$k.1000.300.txt
