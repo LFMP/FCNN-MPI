@@ -1,5 +1,5 @@
 all:
-	# make -C docs/ all
+	make -C docs/ all
 	make -C src/ all 
 
 sequencial:
