@@ -5,7 +5,7 @@ SOURCE	= parallel.c
 HEADER	= ../util/mse-loss.h ../util/relu.h ../util/sigmoid.h ../util/network.h parallel.h
 OUT	= fcnn-mpi.out
 CC	 = mpicc
-FLAGS	 = -c -L/opt/mpiP-3.5/libmpiP.so -lmpi
+FLAGS	 = -c -lmpi
 LFLAGS	 = -lm
 # -g option enables debugging mode 
 # -c flag generates object code for separate files
